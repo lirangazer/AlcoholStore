@@ -2,7 +2,14 @@
 
 class Drink(object):
     """Object represent Drink in the store"""
-    def __init__(self, type, name, catalog_id, price, amount):
+    def __init__(self, type: str, name: str, catalog_id: int, price: int, amount: int) -> object:
+        """
+        :param type: drink type
+        :param name: name of the drink
+        :param catalog_id: id of the drink
+        :param price: price of the drink
+        :param amount: amount from this drink
+        """
         self.type = type
         self.name = name
         self.catalog_id = catalog_id

@@ -17,6 +17,8 @@ from store.buyer import *
 #
 # CSV = r"common\tpu_configration.xml"
 # XML = r"common\csv_file.csv"
+from store.product_purchase import ProductPurchase
+
 PROJECT = "StoreApp"
 
 setup_logger(PROJECT)
@@ -33,7 +35,7 @@ def main():
         logger.info("StoreApp Ready")
         drink = Drink("Wiski", "RedLabel", 223344, 25, 60)
         buyer = Buyer("Wihbe", 2055, 5022, 30)
-
+        pp = ProductPurchase("w", "w", "w", "w")
         logger.info("{0},\n{1}".format(buyer, drink))
 
     except Exception as e:
