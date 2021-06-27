@@ -3,7 +3,7 @@ from datetime import datetime
 
 class Sale(object):
     """Sale the represent the invoice"""
-    def __init__(self, invoice_number):
+    def __init__(self, invoice_number: int) -> object:
         """
         :param invoice_number: int: number of the invoice.
         """

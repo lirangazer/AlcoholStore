@@ -13,11 +13,15 @@ import re
 from common.root_logger import *
 from store.drink import *
 from store.buyer import *
+from store.product_sale import ProductSale
+from store.sale import Sale
+from store.store import *
 # from tkinter import *
 #
 # CSV = r"common\tpu_configration.xml"
 # XML = r"common\csv_file.csv"
 from store.product_purchase import ProductPurchase
+from store.supplier import Supplier
 
 PROJECT = "StoreApp"
 
@@ -33,10 +37,53 @@ def main():
     try:
 
         logger.info("StoreApp Ready")
-        drink = Drink("Wiski", "RedLabel", 223344, 25, 60)
+
+        store = Store()
+
+        #Under age example
+        #--------------------------------------------------------------------
+        drink = Drink("Wiski", "RedLabel", 1055, 500, 0)
         buyer = Buyer("Wihbe", 2055, 5022, 30)
-        pp = ProductPurchase("w", "w", "w", "w")
-        logger.info("{0},\n{1}".format(buyer, drink))
+        sale = Sale(558956)
+
+        wihbe_product_sale = ProductSale(5, sale, drink, buyer)
+        store.sell_product(wihbe_product_sale)
+
+        #Not exist in the stock example.
+        #--------------------------------------------------------------------
+
+        buyer_amit = Buyer("Amit", 20365899, 504808196, 80)
+        amit_product_sale = ProductSale(5, sale, drink, buyer_amit)
+        store.sell_product(amit_product_sale)
+
+        #Purchase example.
+        #--------------------------------------------------------------------
+        supplier = Supplier("Chen","Haifa", 11, 559842658)
+        product_purchase = ProductPurchase(drink, supplier, "Buying vodka", 3)
+        store.product_purchase_from_supplier(product_purchase)
+
+        #Selling not enough products.
+        #--------------------------------------------------------------------
+        store.sell_product(amit_product_sale)
+
+        #Another purchase
+        #--------------------------------------------------------------------
+        store.product_purchase_from_supplier(product_purchase)
+
+        #Selling with the right amount.
+        #--------------------------------------------------------------------
+        store.sell_product(amit_product_sale)
+
+        #Display drink in store.
+        #--------------------------------------------------------------------
+        store.display_drinks_in_store()
+
+        #Display Purchase and Selling history in store.
+        #--------------------------------------------------------------------
+        store.display_product_purchases_from_supplier()
+
+
+        logger.info("Finshed running")
 
     except Exception as e:
         exc_traceback = sys.exc_info()[2]  # Full traceback address

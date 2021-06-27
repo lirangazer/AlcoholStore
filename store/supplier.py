@@ -12,3 +12,7 @@ class Supplier(object):
         self.id = id
         self.address = address
         self.name = name
+
+    def __str__(self):
+        return "Supplier info:\n" \
+               "name: {0}, id: {1}, address: {2}, phone: {3}".format(self.name, self.id, self.address,self.phone,)
