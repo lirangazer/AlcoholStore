@@ -7,7 +7,7 @@
 # Created:     20/5/2021
 #  -------------------------------------------------------------------------------
 
-# from gui.tpu_app import *
+from GUI.login_window import *
 import traceback
 import re
 from common.root_logger import *
@@ -16,7 +16,7 @@ from store.buyer import *
 from store.product_sale import ProductSale
 from store.sale import Sale
 from store.store import *
-# from tkinter import *
+from tkinter import *
 #
 # CSV = r"common\tpu_configration.xml"
 # XML = r"common\csv_file.csv"
@@ -39,6 +39,12 @@ def main():
         logger.info("StoreApp Ready")
 
         store = Store()
+        #store.display_drinks_in_store()
+        root = Tk()
+        login_window(root, "Alcohol Store", "250x150")
+        root.mainloop()
+
+
 
         #Under age example
         #--------------------------------------------------------------------
