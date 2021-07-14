@@ -41,12 +41,13 @@ class login_window():
         for key, value in authentication.items():
             if key == username:
                 if value == password:
-                    newroot=Toplevel()
-                    AlcoholStore(newroot, 'Alcohol Store', '1000x1000')
                     Label(self.root, text='success', fg='green', font=("calibri", 12)).grid(row=3, column=1)
-                    self.root.withdraw()
-                    newroot.mainloop()
-                    self.root.destroy()
+                    mainStore(self.root)
+                    # newroot=Toplevel()
+                    # AlcoholStore(newroot, 'Alcohol Store', '1000x1000', self.root)
+                    #self.root.withdraw()
+                    #newroot.mainloop()
+
             else:
                 Label(self.root, text='login failed ', fg='red', font=("calibri", 12)).grid(row=3, column=1)
 
