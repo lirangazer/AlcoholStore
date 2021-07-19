@@ -12,6 +12,7 @@ import os
 import subprocess
 from GUI.login_window import *
 from GUI.new_buyer_window import *
+from GUI.new_supplier_window import *
 from picture import *
 from store.drink import *
 from store.buyer import *
@@ -36,15 +37,22 @@ buyer_text = ''
 supplier_text = ''
 
 
-def add_to_basket():
-    print('success')
+#
+# def add_to_basket():
+#     print('success')
 
 
-# def add_new_buyer(main_window):
-#         new_buyer = Toplevel()
-#         new_buyer_user = NewBuyerWindow(new_buyer, "Add new Buyer", '350x350',main_window)
-#         new_buyer.mainloop()
+def add_new_buyer(main_window):
+    new_buyer = Toplevel()
+    new_buyer_user = NewBuyerWindow(new_buyer, "Add new Buyer", '350x350', main_window)
 
+    new_buyer.mainloop()
+
+
+def add_new_supplier(main_window):
+    new_supplier = Toplevel()
+    new_supplier_window = NewSupplierWindow(new_supplier, "Add New Supplier", '350x350', main_window)
+    new_supplier.mainloop()
 
 
 class AlcoholStore():
@@ -61,10 +69,14 @@ class AlcoholStore():
         self.buttons = []
         self.products_name = []
         self.products_pic = []
+        self.spinbox_pic = []
         self.buyer_list_items = []
         self.buyers = []
         self.buyers_names = []
+        self.suppliers = []
+        self.suppliers_names = []
         self.supplier_list_items = []
+        self.basket = []
         self.init_frame()
         self.init_buttons()
         self.init_pic()
@@ -98,25 +110,26 @@ class AlcoholStore():
             tmp = Image.open(v)
             tmp1 = tmp.resize((100, 100), Image.ANTIALIAS)
             tmp2 = ImageTk.PhotoImage(tmp1)
-            self.products_pic.append(Button(self.frame[0], image=tmp2, padx=20, pady=15, command=add_to_basket))
+            self.products_pic.append(Button(self.frame[0], image=tmp2, text=k, padx=20, pady=15))
             self.products_name.append(Label(self.frame[0], text=k))
+            self.spinbox_pic.append(Spinbox(self.frame[0], from_=0, to=100, state='disable'))
             self.products_pic[i].image = tmp2
             i += 1
         for j in range(len(self.products_pic)):
             self.products_pic[j].grid(row=0, column=j, padx=5)
+            print(self.products_pic[j])
+            self.products_pic[j].bind('<Button-1>', lambda i=i: self.add_to_basket(i))
+            self.products_pic[j].bind('<Button-3>', lambda i=i: self.edit_drink(i))
             self.products_name[j].grid(row=1, column=j)
+            self.spinbox_pic[j].grid(row=2, column=j)
 
     def init_buyer_frame(self, buyer=None):
-        if self.buyers is None:
-            pass
-        else:
-            for i in range(len(self.buyers)):
-                self.buyers_names.append(self.buyers[i].name)
-        print(self.buyers_names)
         self.buyer_list_items.append(Label(self.frame[1], text="Buyer"))
         self.buyer_list_items.append(Combobox(self.frame[1]))
         if buyer is not None:
-            self.buyer_list_items[1].bind("<<ComboboxSelected>>", lambda _: self.update_buyer_detailes(buyer))
+            self.buyers_names.append(buyer.name)
+            self.buyer_list_items[1]['values'] = self.buyers_names
+            self.buyer_list_items[1].bind("<<ComboboxSelected>>", lambda buyer=buyer: self.update_buyer_detailes(buyer))
         buyer_category_text = ["ID", "Phone", "Age"]
         for i in range(len(buyer_category_text)):
             self.buyer_list_items.append(Label(self.frame[1], text=buyer_category_text[i]))
@@ -138,38 +151,51 @@ class AlcoholStore():
         if index == 0:
             pass
         elif index == 2:
-            self.add_new_buyer()
+            # self.add_new_buyer()
+            add_new_buyer(self)
+        elif index == 3:
+            add_new_supplier(self)
         elif index == 4:
             self.main_window.destroy()
             self.perant.deiconify()
 
     def update_buyer_detailes(self, buyer):
         buyer_category_text = ["ID", "Phone", "Age"]
+
         global buyer_text
-        for i in range(len(buyer_category_text)):
-            if buyer_category_text[i] == 'ID':
-                buyer_text = str(buyer.id)
-                self.buyer_list_items[3].configure(state='normal')
-                self.buyer_list_items[3].insert(0, buyer_text)
-                self.buyer_list_items[3].configure(state='disable')
-            elif buyer_category_text[i] == 'Phone':
-                buyer_text = str(buyer.phone)
-                self.buyer_list_items[5].configure(state='normal')
-                self.buyer_list_items[5].insert(0, buyer_text)
-                self.buyer_list_items[5].configure(state='disable')
-            elif buyer_category_text[i] == 'Age':
-                buyer_text = str(buyer.age)
-                self.buyer_list_items[7].configure(state='normal')
-                self.buyer_list_items[7].insert(0, buyer_text)
-                self.buyer_list_items[7].configure(state='disable')
+        for buyer1 in self.buyers:
+            if buyer.widget.get() == buyer1.name:
+                for i in range(len(buyer_category_text)):
+                    if buyer_category_text[i] == 'ID':
+                        buyer_text = str(buyer1.id)
+                        self.buyer_list_items[3].configure(state='normal')
+                        self.buyer_list_items[3].delete(0, 'end')
+                        self.buyer_list_items[3].insert(0, buyer_text)
+                        self.buyer_list_items[3].configure(state='disable')
+                    elif buyer_category_text[i] == 'Phone':
+                        buyer_text = str(buyer1.phone)
+                        self.buyer_list_items[5].configure(state='normal')
+                        self.buyer_list_items[5].delete(0, 'end')
+                        self.buyer_list_items[5].insert(0, buyer_text)
+                        self.buyer_list_items[5].configure(state='disable')
+                    elif buyer_category_text[i] == 'Age':
+                        buyer_text = str(buyer1.age)
+                        self.buyer_list_items[7].configure(state='normal')
+                        self.buyer_list_items[7].delete(0, 'end')
+                        self.buyer_list_items[7].insert(0, buyer_text)
+                        self.buyer_list_items[7].configure(state='disable')
+                    else:
+                        buyer_text = ''
             else:
-                buyer_text = ''
+                continue
 
     def init_supplier_frame(self, supplier=None):
         self.supplier_list_items.append(Label(self.frame[2], text='Supplier'))
         self.supplier_list_items.append(Combobox(self.frame[2]))
         if supplier is not None:
-            self.supplier_list_items[1].bind("<<ComboboxSelected>>", lambda _: self.update_supplier_detailes(supplier))
+            self.suppliers_names.append(supplier.name)
+            self.supplier_list_items[1]['values'] = self.suppliers_names
+            self.supplier_list_items[1].bind("<<ComboboxSelected>>", lambda supplier=supplier: self.update_supplier_detailes(supplier))
         supplier_category_text = ['Address', 'ID', 'Phone']
         for i in range(len(supplier_category_text)):
             self.supplier_list_items.append(Label(self.frame[2], text=supplier_category_text[i]))
@@ -186,34 +212,51 @@ class AlcoholStore():
     def update_supplier_detailes(self, supplier):
         supplier_category_text = ['Address', 'ID', 'Phone']
         global supplier_text
-        for i in range(len(supplier_category_text)):
+        for supplier1 in self.suppliers:
+            if supplier.widget.get() == supplier1.name:
+                for i in range(len(supplier_category_text)):
 
-            if supplier_category_text[i] == 'Address':
-                supplier_text = str(supplier.address)
-                self.supplier_list_items[3].configure(state='normal')
-                self.supplier_list_items[3].insert(0, supplier_text)
-                self.supplier_list_items[3].configure(state='disable')
-            elif supplier_category_text[i] == 'Phone':
-                supplier_text = str(supplier.phone)
-                self.supplier_list_items[5].configure(state='normal')
-                self.supplier_list_items[5].insert(0, supplier_text)
-                self.supplier_list_items[5].configure(state='disable')
-            elif supplier_category_text[i] == 'ID':
-                supplier_text = str(supplier.id)
-                self.supplier_list_items[7].configure(state='normal')
-                self.supplier_list_items[7].insert(0, supplier_text)
-                self.supplier_list_items[7].configure(state='disable')
+                    if supplier_category_text[i] == 'Address':
+                        supplier_text = str(supplier1.address)
+                        self.supplier_list_items[3].configure(state='normal')
+                        self.supplier_list_items[3].delete(0, 'end')
+                        self.supplier_list_items[3].insert(0, supplier_text)
+                        self.supplier_list_items[3].configure(state='disable')
+                    elif supplier_category_text[i] == 'Phone':
+                        supplier_text = str(supplier1.phone)
+                        self.supplier_list_items[5].configure(state='normal')
+                        self.supplier_list_items[5].delete(0, 'end')
+                        self.supplier_list_items[5].insert(0, supplier_text)
+                        self.supplier_list_items[5].configure(state='disable')
+                    elif supplier_category_text[i] == 'ID':
+                        supplier_text = str(supplier1.id)
+                        self.supplier_list_items[7].configure(state='normal')
+                        self.supplier_list_items[7].delete(0, 'end')
+                        self.supplier_list_items[7].insert(0, supplier_text)
+                        self.supplier_list_items[7].configure(state='disable')
+                    else:
+                        supplier_text = ''
             else:
-                supplier_text = ''
+                continue
 
+    def add_to_basket(self, event):
+        for i in range(len(self.products_name)):
+            if self.products_pic[i] is event.widget:
+                # event.widget.c
+                self.ask_for_amount()
+                self.basket.append(self.products_name[i])
 
-    def add_new_buyer(self):
-        new_buyer = Toplevel()
-        new_buyer_user = NewBuyerWindow(new_buyer, "Add new Buyer", '350x350',self.buyers)
-        new_buyer.mainloop()
-        print(self.buyers)
+        print(self.basket)
 
+    def ask_for_amount(self):
+        pass
 
+    def edit_drink(self, event):
+        for i in range(len(self.products_name)):
+            if self.products_pic[i] is event.widget:
+                self.spinbox_pic[i].configure(state='normal')
+                print(self.spinbox_pic[i].get())
+                self.spinbox_pic[i].configure(state='disable')
 
 
 setup_logger(PROJECT)
@@ -244,21 +287,25 @@ def mainStore(root_window):
         # --------------------------------------------------------------------
 
         buyer_amit = Buyer("Amit", 20365899, 504808196, 80)
-        alcohol_store.buyer_list_items[1]['values'] += buyer_amit.name
+        alcohol_store.buyers.append(buyer_amit)
         alcohol_store.init_buyer_frame(buyer_amit)
         amit_product_sale = ProductSale(5, sale, drink, buyer_amit)
         store.sell_product(amit_product_sale)
         # Purchase example.
         # --------------------------------------------------------------------
         supplier = Supplier("Chen", "Haifa", 11, 559842658)
-        alcohol_store.supplier_list_items[1]['values'] += supplier.name
+        #alcohol_store.supplier_list_items[1]['values'] += supplier.name
+        alcohol_store.suppliers.append(supplier)
         alcohol_store.init_supplier_frame(supplier)
         product_purchase = ProductPurchase(drink, supplier, "Buying vodka", 3)
         store.product_purchase_from_supplier(product_purchase)
         for i in range(len(alcohol_store.products_name)):
             if product_purchase.drink.name == alcohol_store.products_name[i].cget("text"):
-                label_text = drink.name + "  amount: " + str(product_purchase.amount)
-                alcohol_store.products_name[i].config(text=label_text)
+                amount = StringVar()
+                amount.set(str(product_purchase.amount))
+                alcohol_store.spinbox_pic[i].configure(state='normal')
+                alcohol_store.spinbox_pic[i].configure(textvariable=amount)
+                alcohol_store.spinbox_pic[i].configure(state='disable')
 
         # Selling not enough products.
         # --------------------------------------------------------------------
