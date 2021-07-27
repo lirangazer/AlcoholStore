@@ -7,12 +7,15 @@ import traceback
 import tkinter
 from tkinter import *
 from tkinter.ttk import *
+from tkinter.messagebox import *
 from common.root_logger import *
 import os
 import subprocess
 from GUI.login_window import *
 from GUI.new_buyer_window import *
 from GUI.new_supplier_window import *
+from GUI.ask_for_amount import *
+from GUI.purchase_drinks import *
 from picture import *
 from store.drink import *
 from store.buyer import *
@@ -35,24 +38,44 @@ except ImportError:
 PROJECT = ""
 buyer_text = ''
 supplier_text = ''
-
-
-#
-# def add_to_basket():
-#     print('success')
+button_flag = 0
 
 
 def add_new_buyer(main_window):
     new_buyer = Toplevel()
     new_buyer_user = NewBuyerWindow(new_buyer, "Add new Buyer", '350x350', main_window)
+    # new_buyer.protocol("WM_DELETE_WINDOW", on_closing(new_buyer))
+    main_window.main_window.wait_window(new_buyer)
 
-    new_buyer.mainloop()
 
-
+# def on_closing(root):
+#     if messagebox.askokcancel("Quit", "Do you want to quit?"):
+#         root.destroy()
 def add_new_supplier(main_window):
     new_supplier = Toplevel()
     new_supplier_window = NewSupplierWindow(new_supplier, "Add New Supplier", '350x350', main_window)
     new_supplier.mainloop()
+
+
+def purchase_from_supplier(colling_window):
+    prices = 0
+    if colling_window.supplier_list_items[7].get() == '':
+        Label(colling_window.frame[3], text="Invalid Supplier!! Please choose supplier from list", fg='red').grid(row=1,
+                                                                                                                  column=1)
+    else:
+        purchase_drink = Toplevel()
+        PurchaseDrinks(purchase_drink, 'purchase form supplier', '350x350', colling_window)
+        colling_window.main_window.wait_window(purchase_drink)
+        tmp_supplier = Supplier(colling_window.supplier_list_items[1].get(), colling_window.supplier_list_items[3].get(),
+                                colling_window.supplier_list_items[7].get(), colling_window.supplier_list_items[5].get())
+        for i in colling_window.tmp_drinks:
+            tmp_text = "buying" + i.name
+            tmp_purchase = ProductPurchase(i, tmp_supplier, tmp_text, i.amount)
+            colling_window.products_purchase.append(tmp_purchase)
+            prices += (i.price * i.amount)
+
+        messagebox.showinfo('Thanks', 'Thanks for purchase the total value is : %s' % str(prices))
+        colling_window.tmp_drinks.clear()
 
 
 class AlcoholStore():
@@ -62,13 +85,15 @@ class AlcoholStore():
         self.main_window.title(title)
         self.main_window.geometry(window_geo)
         self.perant = perant
-
         global PROJECT
         PROJECT = title
+        self.amount = 0
         self.frame = []
         self.buttons = []
         self.products_name = []
         self.products_pic = []
+        self.drinks = []
+        self.tmp_drinks = []
         self.spinbox_pic = []
         self.buyer_list_items = []
         self.buyers = []
@@ -76,7 +101,8 @@ class AlcoholStore():
         self.suppliers = []
         self.suppliers_names = []
         self.supplier_list_items = []
-        self.basket = []
+        self.products_purchase = []
+        self.basket = {}
         self.init_frame()
         self.init_buttons()
         self.init_pic()
@@ -85,18 +111,18 @@ class AlcoholStore():
 
     def init_frame(self):
         for i in range(4):
-            self.frame.append(Frame(self.main_window, height=70, width=400, pady=15, padx=15))
-        self.frame[0].grid(row=0, column=0)
-        self.frame[1].grid(row=1, column=0)
-        self.frame[2].grid(row=1, column=1)
+            self.frame.append(Frame(self.main_window, height=60, width=400, pady=15, padx=15))
+        self.frame[0].grid(row=0, column=0, sticky='nsew', pady=30)
+        self.frame[1].grid(row=1, column=0, sticky='nsew')
+        self.frame[2].grid(row=1, column=1, sticky='nsew')
         self.frame[3].grid(row=2, column=0)
 
     def init_buttons(self):
-        buttons_name = ['Purchase', 'Cancel', 'Add Buyer', 'Add Supplier', 'Exit']
+        buttons_name = ['Purchase from supplier', 'Sale to buyer', 'Add Buyer', 'Add Supplier', 'Exit']
         for i in range(len(buttons_name)):
             self.buttons.append(Button(self.frame[3], text=buttons_name[i], padx=20, pady=15,
                                        command=lambda i=i: self.buttons_action(i)))
-        self.buttons[0].grid(row=0, column=0, padx=20, pady=15)
+        self.buttons[0].grid(row=0, column=0, pady=15)
         self.buttons[1].grid(row=0, column=1)
         self.buttons[2].grid(row=0, column=2)
         self.buttons[3].grid(row=0, column=3)
@@ -104,7 +130,8 @@ class AlcoholStore():
 
     def init_pic(self):
         picture_path = {'Red Label': r"picture\redlabel.png", 'Glenfiddich': r"picture/glenfiddich.png",
-                        'Grey Goose': 'picture/grey goose.png'}
+                        'Grey Goose': 'picture/grey goose.png', 'Van Gogh': r'picture/vangoghacaiblueberry.png', 'Captain Morgans': r'picture/Captin_Morgans.png',
+                        'Bakerdi': 'picture/Bakerdi.png', 'Bombay Sapphire': r'picture/bombay Sapphire.png', 'Beefeater': 'picture/BEEFEATER.png'}
         i = 0
         for (k, v) in picture_path.items():
             tmp = Image.open(v)
@@ -116,10 +143,11 @@ class AlcoholStore():
             self.products_pic[i].image = tmp2
             i += 1
         for j in range(len(self.products_pic)):
-            self.products_pic[j].grid(row=0, column=j, padx=5)
-            print(self.products_pic[j])
+            self.products_pic[j].grid(row=0, column=j, padx=5, pady=5)
             self.products_pic[j].bind('<Button-1>', lambda i=i: self.add_to_basket(i))
-            self.products_pic[j].bind('<Button-3>', lambda i=i: self.edit_drink(i))
+            # self.products_pic[j].bind('<Double-Button-1>', lambda i=i: self.remove_to_basket(i))
+            self.products_pic[j].bind('<Button-3>', lambda i=i: self.remove_to_basket(i))
+            # self.products_pic[j].bind('<Double-Button-3>', lambda i=i: self.stop_edit_drink(i))
             self.products_name[j].grid(row=1, column=j)
             self.spinbox_pic[j].grid(row=2, column=j)
 
@@ -149,7 +177,7 @@ class AlcoholStore():
         """
         # file_parser = filesParse()
         if index == 0:
-            pass
+            purchase_from_supplier(self)
         elif index == 2:
             # self.add_new_buyer()
             add_new_buyer(self)
@@ -195,7 +223,8 @@ class AlcoholStore():
         if supplier is not None:
             self.suppliers_names.append(supplier.name)
             self.supplier_list_items[1]['values'] = self.suppliers_names
-            self.supplier_list_items[1].bind("<<ComboboxSelected>>", lambda supplier=supplier: self.update_supplier_detailes(supplier))
+            self.supplier_list_items[1].bind("<<ComboboxSelected>>",
+                                             lambda supplier=supplier: self.update_supplier_detailes(supplier))
         supplier_category_text = ['Address', 'ID', 'Phone']
         for i in range(len(supplier_category_text)):
             self.supplier_list_items.append(Label(self.frame[2], text=supplier_category_text[i]))
@@ -240,23 +269,39 @@ class AlcoholStore():
                 continue
 
     def add_to_basket(self, event):
-        for i in range(len(self.products_name)):
-            if self.products_pic[i] is event.widget:
-                # event.widget.c
-                self.ask_for_amount()
-                self.basket.append(self.products_name[i])
-
+        global button_flag
+        button_flag += 1
+        if button_flag == 1:
+            for i in range(len(self.products_name)):
+                if self.products_pic[i] is event.widget:
+                    self.products_pic[i].config(relief='sunken')
+                    self.products_pic[i].config(bg='blue')
+                    self.ask_for_amount(self.spinbox_pic[i].get(), event)
+                    if self.amount > 0:
+                        self.basket[self.products_name[i].cget("text")] = self.amount
+                    button_flag = 0
+        # elif button_flag == 2:
+        #     for i in range(len(self.products_name)):
+        #         if self.products_pic[i] is event.widget:
+        #             self.products_pic[i].bind('<Double-Button-1>', lambda event=event: self.remove_to_basket(event))
+        #             button_flag = 0
         print(self.basket)
 
-    def ask_for_amount(self):
-        pass
-
-    def edit_drink(self, event):
+    def remove_to_basket(self, event):
         for i in range(len(self.products_name)):
             if self.products_pic[i] is event.widget:
-                self.spinbox_pic[i].configure(state='normal')
-                print(self.spinbox_pic[i].get())
-                self.spinbox_pic[i].configure(state='disable')
+                self.products_pic[i].config(relief='raised')
+                del self.basket[self.products_pic[i].cget("text")]
+        print(self.basket)
+
+    def ask_for_amount(self, amount, event):
+        ask_for_amount = Toplevel()
+        AskForAmount(ask_for_amount, "Amount", '350x350', self, amount)
+        print(self.main_window.wait_window(ask_for_amount))
+        for i in range(len(self.products_name)):
+            if self.products_pic[i] is event.widget:
+                self.products_pic[i].config(bg='SystemButtonFace')
+                self.products_pic[i].config(relief='raised')
 
 
 setup_logger(PROJECT)
@@ -276,10 +321,10 @@ def mainStore(root_window):
         # --------------------------------------------------------------------
         drink = Drink("Wiski", "Red Label", 1055, 500, 0)
         buyer = Buyer("Wihbe", 2055, 5022, 30)
+        alcohol_store.buyers.append(buyer)
+        alcohol_store.init_buyer_frame(buyer)
+        alcohol_store.drinks.append(drink)
         sale = Sale(558956)
-        # label_text = drink.name + "  amount: " + str(drink.amount)
-        # alcohol_store.products_name[0].config(text=label_text)
-
         wihbe_product_sale = ProductSale(5, sale, drink, buyer)
         store.sell_product(wihbe_product_sale)
 
@@ -294,10 +339,10 @@ def mainStore(root_window):
         # Purchase example.
         # --------------------------------------------------------------------
         supplier = Supplier("Chen", "Haifa", 11, 559842658)
-        #alcohol_store.supplier_list_items[1]['values'] += supplier.name
         alcohol_store.suppliers.append(supplier)
         alcohol_store.init_supplier_frame(supplier)
         product_purchase = ProductPurchase(drink, supplier, "Buying vodka", 3)
+
         store.product_purchase_from_supplier(product_purchase)
         for i in range(len(alcohol_store.products_name)):
             if product_purchase.drink.name == alcohol_store.products_name[i].cget("text"):

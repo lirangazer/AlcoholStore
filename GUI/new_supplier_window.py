@@ -26,10 +26,10 @@ class NewSupplierWindow():
         name = StringVar()
         name_entry = Entry(self.frame[1], textvariable=name).grid(row=0, column=1)
         Label(self.frame[1], text='ID').grid(row=1, column=0)
-        id_buyer = IntVar()
+        id_buyer = StringVar()
         id_entry = Entry(self.frame[1], textvariable=id_buyer).grid(row=1, column=1)
         Label(self.frame[1], text='Phone').grid(row=2, column=0)
-        phone = IntVar()
+        phone = StringVar()
         phone_entry = Entry(self.frame[1], textvariable=phone).grid(row=2, column=1)
         Label(self.frame[1], text='Address').grid(row=3, column=0)
         address = StringVar()
@@ -42,9 +42,6 @@ class NewSupplierWindow():
     def return_supplier(self, name_entry, id_entry, phone_entry, address_entry):
         try:
             new_supplier = Supplier(name_entry.get(), address_entry.get(), id_entry.get(), phone_entry.get())
-            # self.parent.suppliers.append(new_supplier)
-            # self.parent.suppliers_names.append(new_supplier.name)
-            # self.parent.supplier_list_items[1]['values'] = self.parent.suppliers_names
             for i in range(len(self.parent.suppliers)):
                 if new_supplier not in self.parent.suppliers:
                     self.parent.suppliers.append(new_supplier)
