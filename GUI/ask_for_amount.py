@@ -33,11 +33,13 @@ class AskForAmount():
                                                                                                         pady=5)
 
     def return_amount(self, amount_entry):
-        if amount_entry.get() <= self.amount:
-            self.parent.amount = amount_entry.get()
-            self.root.destroy()
-        else:
-            Label(self.frame[2], text='This amount is invalid please enter lower amount.', fg='red').grid(row=3, column=1)
+        self.parent.amount = amount_entry.get()
+        self.root.destroy()
+        # if amount_entry.get() <= self.amount:
+        #     self.parent.amount = amount_entry.get()
+        #     self.root.destroy()
+        # else:
+        #     Label(self.frame[2], text='This amount is invalid please enter lower amount.', fg='red').grid(row=3, column=1)
 
 
     def cancel(self):

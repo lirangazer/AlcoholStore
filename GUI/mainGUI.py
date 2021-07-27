@@ -11,6 +11,7 @@ from tkinter.messagebox import *
 from common.root_logger import *
 import os
 import subprocess
+import random
 from GUI.login_window import *
 from GUI.new_buyer_window import *
 from GUI.new_supplier_window import *
@@ -47,14 +48,29 @@ def add_new_buyer(main_window):
     # new_buyer.protocol("WM_DELETE_WINDOW", on_closing(new_buyer))
     main_window.main_window.wait_window(new_buyer)
 
-
-# def on_closing(root):
-#     if messagebox.askokcancel("Quit", "Do you want to quit?"):
-#         root.destroy()
 def add_new_supplier(main_window):
     new_supplier = Toplevel()
     new_supplier_window = NewSupplierWindow(new_supplier, "Add New Supplier", '350x350', main_window)
     new_supplier.mainloop()
+
+def update_drinks_amount(colling_window):
+    for i in range(len(colling_window.products_name)):
+        if colling_window.tmp_drinks[0].name == colling_window.products_name[i].cget('text'):
+            if int(colling_window.spinbox_pic[i].get()) == 0:
+                amount = StringVar()
+                amount.set(colling_window.tmp_drinks[0].amount)
+                colling_window.spinbox_pic[i].configure(state='normal')
+                colling_window.spinbox_pic[i].configure(textvariable=amount)
+                colling_window.spinbox_pic[i].configure(state='disable')
+            else:
+                amount_1 = StringVar()
+                tmp_amount = int(colling_window.spinbox_pic[i].get()) + colling_window.tmp_drinks[0].amount
+                amount_1.set(tmp_amount)
+                colling_window.spinbox_pic[i].configure(state='normal')
+                colling_window.spinbox_pic[i].configure(textvariable=amount_1)
+                colling_window.spinbox_pic[i].configure(state='disable')
+        else:
+            continue
 
 
 def purchase_from_supplier(colling_window):
@@ -69,22 +85,51 @@ def purchase_from_supplier(colling_window):
         tmp_supplier = Supplier(colling_window.supplier_list_items[1].get(), colling_window.supplier_list_items[3].get(),
                                 colling_window.supplier_list_items[7].get(), colling_window.supplier_list_items[5].get())
         for i in colling_window.tmp_drinks:
-            tmp_text = "buying" + i.name
+            tmp_text = "buying"+" " + i.name
             tmp_purchase = ProductPurchase(i, tmp_supplier, tmp_text, i.amount)
-            colling_window.products_purchase.append(tmp_purchase)
+            colling_window.store.product_purchase_from_supplier(tmp_purchase)
             prices += (i.price * i.amount)
-
         messagebox.showinfo('Thanks', 'Thanks for purchase the total value is : %s' % str(prices))
+
+        update_drinks_amount(colling_window)
+        colling_window.store.display_drinks_in_store()
         colling_window.tmp_drinks.clear()
 
 
+def get_total_amount(drinks_in_store, drink):
+    for i in drinks_in_store:
+        if i.catalog_id == drink.catalog_id:
+            return i.amount
+        else:
+            continue
+
+
+def sale_to_buyer(celling_window):
+    if celling_window.buyer_list_items[3] == '':
+        Label(celling_window.frame[3], text="Invalid Buyer!! Please choose buyer from list", fg='red').grid(row=1, column=1)
+    else:
+        tmp_buyer = Buyer(celling_window.buyer_list_items[1].get(),int(celling_window.buyer_list_items[3].get()),int(celling_window.buyer_list_items[5].get()),
+                          int(celling_window.buyer_list_items[7].get()))
+        for i in celling_window.basket:
+            sale = Sale(random.randrange(100000, 999999))
+            tmp_product_sale = ProductSale(i.amount, sale, i, tmp_buyer)
+            if int(celling_window.store.sell_product(tmp_product_sale)) == 0:
+                messagebox.showerror("Under Age","The buyer {0} is under legal age 18, his age: {1}".format(tmp_product_sale.buyer.name, tmp_product_sale.buyer.age))
+            elif int(celling_window.store.sell_product(tmp_product_sale)) == 1:
+                messagebox.showwarning('Not enough product',"The item {0} amount is: {1}".format(tmp_product_sale.drink.name,get_total_amount(celling_window.store.drinks_in_store,
+                                                                                                                                      tmp_product_sale.drink)))
+            elif int(celling_window.store.sell_product(tmp_product_sale)) == 2:
+                messagebox.showwarning("Item don't Exist","The item: {0} is not exist in the stock".format(tmp_product_sale.drink.name))
+
+
 class AlcoholStore():
-    def __init__(self, main_window, title, window_geo, perant, icon=None):
+    def __init__(self, main_window, title, window_geo, perant,store, icon=None):
         setup_logger(title, print_to_screen=False)
         self.main_window = main_window
         self.main_window.title(title)
         self.main_window.geometry(window_geo)
         self.perant = perant
+        self.store = store
         global PROJECT
         PROJECT = title
         self.amount = 0
@@ -101,8 +146,7 @@ class AlcoholStore():
         self.suppliers = []
         self.suppliers_names = []
         self.supplier_list_items = []
-        self.products_purchase = []
-        self.basket = {}
+        self.basket = []
         self.init_frame()
         self.init_buttons()
         self.init_pic()
@@ -175,11 +219,11 @@ class AlcoholStore():
         """
         :param index: Index of the pressed button.
         """
-        # file_parser = filesParse()
         if index == 0:
             purchase_from_supplier(self)
+        elif index == 1:
+            sale_to_buyer(self)
         elif index == 2:
-            # self.add_new_buyer()
             add_new_buyer(self)
         elif index == 3:
             add_new_supplier(self)
@@ -269,35 +313,37 @@ class AlcoholStore():
                 continue
 
     def add_to_basket(self, event):
-        global button_flag
-        button_flag += 1
-        if button_flag == 1:
-            for i in range(len(self.products_name)):
-                if self.products_pic[i] is event.widget:
-                    self.products_pic[i].config(relief='sunken')
-                    self.products_pic[i].config(bg='blue')
-                    self.ask_for_amount(self.spinbox_pic[i].get(), event)
-                    if self.amount > 0:
-                        self.basket[self.products_name[i].cget("text")] = self.amount
-                    button_flag = 0
-        # elif button_flag == 2:
-        #     for i in range(len(self.products_name)):
-        #         if self.products_pic[i] is event.widget:
-        #             self.products_pic[i].bind('<Double-Button-1>', lambda event=event: self.remove_to_basket(event))
-        #             button_flag = 0
+
+        for i in range(len(self.products_name)):
+            if self.products_pic[i] is event.widget:
+                self.products_pic[i].config(relief='sunken')
+                self.products_pic[i].config(bg='blue')
+                self.ask_for_amount(self.spinbox_pic[i].get(), event)
+                if int(self.amount) > 0:
+                    for j in self.drinks:
+                        if j.name == event.widget.cget('text'):
+                            tmp_drink = Drink(j.type, j.name, j.catalog_id, j.price, j.amount)
+                            tmp_drink.amount = self.amount
+                            self.basket.append(tmp_drink)
+                            break
         print(self.basket)
 
     def remove_to_basket(self, event):
         for i in range(len(self.products_name)):
             if self.products_pic[i] is event.widget:
                 self.products_pic[i].config(relief='raised')
-                del self.basket[self.products_pic[i].cget("text")]
+                for i in self.basket:
+                    if i.name == event.widget.cget('text'):
+                        self.basket.remove(i)
+                    else:
+                        continue
+                # del self.basket[self.products_pic[i].cget("text")]
         print(self.basket)
 
     def ask_for_amount(self, amount, event):
         ask_for_amount = Toplevel()
         AskForAmount(ask_for_amount, "Amount", '350x350', self, amount)
-        print(self.main_window.wait_window(ask_for_amount))
+        self.main_window.wait_window(ask_for_amount)
         for i in range(len(self.products_name)):
             if self.products_pic[i] is event.widget:
                 self.products_pic[i].config(bg='SystemButtonFace')
@@ -314,7 +360,7 @@ def mainStore(root_window):
 
         store = Store()
         newroot = Toplevel()
-        alcohol_store = AlcoholStore(newroot, 'Alcohol Store', '1000x1000', root_window)
+        alcohol_store = AlcoholStore(newroot, 'Alcohol Store', '1000x1000', root_window,store)
         root_window.withdraw()
 
         # Under age example

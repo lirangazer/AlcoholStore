@@ -12,9 +12,9 @@ class PurchaseDrinks():
         self.parent = parent
         self.frame = []
         self.items = []
-        self.catalog_id = {'Red Label': 1055, 'Glenfiddich' : 1056, 'Gray Goose': 2055, 'Van Gogh': 2056, 'Bakerdi':3055, 'Captain Morgens':3056,
+        self.catalog_id = {'Red Label': 1055, 'Glenfiddich' : 1056, 'Grey Goose': 2055, 'Van Gogh': 2056, 'Bakerdi':3055, 'Captain Morgans':3056,
                            'Bombay Sapphire':4055, 'Beefeater':4056}
-        self.price = {'Red Label': 150, 'Glenfiddich' : 250, 'Gray Goose': 200, 'Van Gogh': 180, 'Bakerdi':100, 'Captain Morgens':250,
+        self.price = {'Red Label': 150, 'Glenfiddich' : 250, 'Grey Goose': 200, 'Van Gogh': 180, 'Bakerdi':100, 'Captain Morgans':250,
                            'Bombay Sapphire':120, 'Beefeater':130}
         self.init_frame()
         self.init_window()
@@ -59,13 +59,13 @@ class PurchaseDrinks():
     def update_drinks_name(self, event):
 
         if event.widget.get() == 'Vodka':
-            vodka_brand = ['Gray Goose', 'Van Gogh']
+            vodka_brand = ['Grey Goose', 'Van Gogh']
             self.items[3]['values'] = vodka_brand
         elif event.widget.get() == 'Whiskey':
             whiskey_brand = ['Red Label', 'Glenfiddich']
             self.items[3]['values'] = whiskey_brand
         elif event.widget.get() == 'Rum':
-            rum_brand = ['Bakerdi', 'Captain Morgens']
+            rum_brand = ['Bakerdi', 'Captain Morgans']
             self.items[3]['values'] = rum_brand
         elif event.widget.get() == 'Gin':
             gin_brand = ['Bombay Sapphire', 'Beefeater']
@@ -73,17 +73,17 @@ class PurchaseDrinks():
 
     def return_drinks(self):
         new_drink = Drink(self.items[1].get(),self.items[3].get(),int(self.items[7].get()),int(self.items[9].get()), int(self.items[5].get()))
-        flag = 0
-        for i in self.parent.drinks:
-            if i.catalog_id == new_drink.catalog_id:
-                i.amount = new_drink.amount
-                self.parent.tmp_drinks.append(new_drink)
-                flag = 1
-            else:
-                continue
-        if flag == 0:
-            self.parent.drinks.append(new_drink)
-            self.parent.tmp_drinks.append(new_drink)
+        # flag = 0
+        # for i in self.parent.store.drinks_in_store:
+        #     if i.catalog_id == new_drink.catalog_id:
+        #         i.amount += new_drink.amount
+        #         self.parent.tmp_drinks.append(new_drink)
+        #         flag = 1
+        #     else:
+        #         continue
+        # if flag == 0:
+        #     self.parent.drinks.append(new_drink)
+        self.parent.tmp_drinks.append(new_drink)
         self.root.destroy()
 
     def cancel(self):
