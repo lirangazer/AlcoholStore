@@ -73,16 +73,6 @@ class PurchaseDrinks():
 
     def return_drinks(self):
         new_drink = Drink(self.items[1].get(),self.items[3].get(),int(self.items[7].get()),int(self.items[9].get()), int(self.items[5].get()))
-        # flag = 0
-        # for i in self.parent.store.drinks_in_store:
-        #     if i.catalog_id == new_drink.catalog_id:
-        #         i.amount += new_drink.amount
-        #         self.parent.tmp_drinks.append(new_drink)
-        #         flag = 1
-        #     else:
-        #         continue
-        # if flag == 0:
-        #     self.parent.drinks.append(new_drink)
         self.parent.tmp_drinks.append(new_drink)
         self.root.destroy()
 

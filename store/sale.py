@@ -9,7 +9,7 @@ class Sale(object):
         """
         self.invoice_number = invoice_number
         now = datetime.now()
-        date = now.strftime("%m/%d/%Y, %H:%M:%S")
+        self.date = now.strftime("%m/%d/%Y, %H:%M:%S")
 
     def __str__(self):
         return "Sale invoice number:\n" \

@@ -26,10 +26,12 @@ class Store(object):
         for i in range(len(self.drinks_in_store)):
             if self.drinks_in_store[i].catalog_id == product_id:
                 if self.drinks_in_store[i].amount >= int(product_sale.amount):
-                    self.drinks_in_store[i].amount -= product_sale.amount
+                    self.drinks_in_store[i].amount -= int(product_sale.amount)
                     self.product_sales.append(product_sale)
                     self.logger.info("Sold: {0} drinks of {1}".format(product_sale.amount, product_sale.drink.name))
                     item_exist = True
+                    return_flag = 3
+                    return return_flag
 
                 else:
                     self.logger.info("Not enough product\n"
