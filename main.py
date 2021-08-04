@@ -35,6 +35,7 @@ def main():
     """
     root = Tk()
     login_window(root, "Alcohol Store", "250x150")
+    root.iconbitmap('picture/Alcohol for all-logos_transparent.ico')
     root.mainloop()
     # try:
     #
