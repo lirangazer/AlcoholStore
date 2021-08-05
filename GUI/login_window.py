@@ -16,40 +16,57 @@ class login_window():
         self.root.geometry(window_geo)
         self.username_verify = StringVar()
         self.password_verify = StringVar()
-        # Label(self.root, text='User Name').grid(row=0, column=0)
-        # username = StringVar()
-        # Entry(self.root, textvariable=username).grid(row=0, column=1)
-        # Label(self.root, text='Password').grid(row=1, column=0)
-        # password = StringVar()
-        # Entry(self.root, textvariable=password, show='*').grid(row=1, column=1)
+        self.items = []
+        self.label_message = None
+        self.authentication = {'liran': '123', 'whibe': '123'}
         self.init_login()
 
     def init_login(self):
-        user_label = Label(self.root, text='User Name').grid(row=0, column=0)
+        self.items.append(Label(self.root, text='User Name').grid(row=0, column=0))
         username_verify = self.username_verify
-        usr_entry = Entry(self.root, textvariable=username_verify).grid(row=0, column=1)
-        password_label = Label(self.root, text='Password').grid(row=1, column=0)
+        self.items.append(Entry(self.root, textvariable=username_verify).grid(row=0, column=1))
+        self.items.append(Label(self.root, text='Password').grid(row=1, column=0))
         password_verify = self.password_verify
-        password_entry = Entry(self.root, textvariable=password_verify, show='*').grid(row=1, column=1)
-        bnt = Button(self.root, text='Login', width=10, height=1, command = self.login_verify).grid(row=2, column=1)
+        self.label_message = Label(self.root).grid(row=3, column=0)
+        self.items.append(Entry(self.root, textvariable=password_verify, show='*').grid(row=1, column=1))
+        self.items.append(Entry(self.root, textvariable=password_verify, show='*').grid(row=1, column=1))
+        bnt = Button(self.root, text='Login', width=10, height=1, command = self.login_verify).grid(row=2, column=0 ,padx=15)
+        bnt = Button(self.root, text='Register', width=10, height=1, command = self.register).grid(row=2, column=1)
 
 
     def login_verify(self):
         username = self.username_verify.get().lower()
         password = self.password_verify.get()
-        authentication = {'liran': '123', 'whibe': '123'}
-        for key, value in authentication.items():
+        
+        for key, value in self.authentication.items():
             if key == username:
                 if value == password:
-                    Label(self.root, text='success', fg='green', font=("calibri", 12)).grid(row=3, column=1)
+                    # Label(self.root, text='success', fg='green', font=("calibri", 12)).grid(row=3, column=1)
                     mainStore(self.root)
-                    # newroot=Toplevel()
-                    # AlcoholStore(newroot, 'Alcohol Store', '1000x1000', self.root)
-                    #self.root.withdraw()
-                    #newroot.mainloop()
 
             else:
                 Label(self.root, text='login failed ', fg='red', font=("calibri", 12)).grid(row=3, column=1)
+
+    def register(self):
+        username = self.username_verify.get()
+        password = self.password_verify.get()
+        flag = 0
+        for(k,v) in self.authentication.items():
+            if k is not username:
+
+                flag = 1
+
+            else:
+                continue
+        if flag == 0:
+            messagebox.showerror('Error', 'user is already exits please check again')
+
+        elif flag == 1:
+            self.authentication[username] = password
+            messagebox.showinfo('Thanks', 'Thanks for register')
+
+
+
 
 
 
