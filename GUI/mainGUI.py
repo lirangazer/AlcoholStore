@@ -150,6 +150,8 @@ def sale_to_buyer(celling_window):
     flag = 0
     if celling_window.buyer_list_items[4].get() == '':
         celling_window.messages_label[0]['text'] = "Invalid Buyer!! Please choose buyer from list"
+    elif len(celling_window.basket) == 0:
+        celling_window.messages_label[0]['text'] = "The basket is empty !! Please add drinks to basket"
     else:
         tmp_buyer = Buyer(celling_window.buyer_list_items[2].get(), int(celling_window.buyer_list_items[4].get()), int(celling_window.buyer_list_items[6].get()),
                           int(celling_window.buyer_list_items[8].get()))
