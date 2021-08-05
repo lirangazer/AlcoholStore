@@ -9,6 +9,9 @@ from common.root_logger import *
 
 
 class login_window():
+    """
+    this class define the login window
+    """
     def __init__(self, root, title, window_geo, icon=None):
         self.logger = get_logger()
         self.root = root
@@ -22,6 +25,10 @@ class login_window():
         self.init_login()
 
     def init_login(self):
+        """
+        initialize the login screen with the widget
+        :return:
+        """
         self.items.append(Label(self.root, text='User Name').grid(row=0, column=0))
         username_verify = self.username_verify
         self.items.append(Entry(self.root, textvariable=username_verify).grid(row=0, column=1))
@@ -35,6 +42,10 @@ class login_window():
 
 
     def login_verify(self):
+        """
+        this function verify the login user
+        :return:
+        """
         username = self.username_verify.get().lower()
         password = self.password_verify.get()
         
@@ -48,6 +59,10 @@ class login_window():
                 Label(self.root, text='login failed ', fg='red', font=("calibri", 12)).grid(row=3, column=1)
 
     def register(self):
+        """
+        this function used for register new user
+        :return:
+        """
         username = self.username_verify.get()
         password = self.password_verify.get()
         flag = 0

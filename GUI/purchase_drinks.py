@@ -5,6 +5,9 @@ from store.drink import *
 
 
 class PurchaseDrinks():
+    """
+    this class implement the purchase drinks from supplier
+    """
     def __init__(self, root, title, window_geo, parent, icon=None):
         self.root = root
         self.root.title(title)
@@ -21,6 +24,10 @@ class PurchaseDrinks():
 
 
     def init_frame(self):
+        """
+        this function initialized the frames
+        :return:
+        """
         for i in range(3):
             self.frame.append(Frame(self.root, height=100, width=300))
         self.frame[0].grid(row=0, column=0)
@@ -28,6 +35,11 @@ class PurchaseDrinks():
         self.frame[2].grid(row=2, column=0)
 
     def init_window(self, i=None):
+        """
+        this function initialized the widget
+        :param i:
+        :return:
+        """
         Label(self.frame[0], text="Please choose the Drinks Purchase details", bg='cyan', font=("calibri", 12)).grid(row=0, column=0, pady=10)
         self.items.append(Label(self.frame[1], text='type'))
         drinks_types = ['Vodka', 'Whiskey', 'Rum', 'Gin']
@@ -57,7 +69,11 @@ class PurchaseDrinks():
         Button(self.frame[2], text='Cancel', height=1, width=7, command=lambda i=1:self.cancel()).grid(row=0, column=2, pady=5)
 
     def update_drinks_name(self, event):
-
+        """
+        this function update the comobobox of the drinks names
+        :param event: get the event from the selected
+        :return:
+        """
         if event.widget.get() == 'Vodka':
             vodka_brand = ['Grey Goose', 'Van Gogh']
             self.items[3]['values'] = vodka_brand
@@ -72,15 +88,28 @@ class PurchaseDrinks():
             self.items[3]['values'] = gin_brand
 
     def return_drinks(self):
+        """
+        this function return the drinks that purchase form supplier to the main window
+        :return:
+        """
         new_drink = Drink(self.items[1].get(),self.items[3].get(),int(self.items[7].get()),int(self.items[9].get()), int(self.items[5].get()))
         self.parent.tmp_drinks.append(new_drink)
         self.root.destroy()
 
     def cancel(self):
+        """
+        this function use to cancel the operation
+        :return:
+        """
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.root.destroy()
 
     def update_drinks_id_price(self, i):
+        """
+        this function update the price and catalog id for the chosen drink
+        :param i:
+        :return:
+        """
         for (k,v) in self.catalog_id.items():
             if i.widget.get() == k:
                 self.items[7].configure(state='normal')

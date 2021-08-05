@@ -4,6 +4,9 @@ from store.supplier import *
 
 
 class AskForAmount():
+    """
+    this class implement the window for asking the amount for purchase
+    """
     def __init__(self, root, title, window_geo, parent,amount, icon=None):
         self.root = root
         self.root.title(title)
@@ -15,6 +18,10 @@ class AskForAmount():
         self.init_window()
 
     def init_frame(self):
+        """
+        this function initialized the window frame
+        :return:
+        """
         for i in range(3):
             self.frame.append(Frame(self.root, height=100, width=300))
         self.frame[0].grid(row=0, column=0)
@@ -22,6 +29,10 @@ class AskForAmount():
         self.frame[2].grid(row=2, column=0)
 
     def init_window(self):
+        """
+                this function initialized the window widget
+                :return:
+        """
         Label(self.frame[0], text="Please insert the new amount you want to buy:",bg='cyan',font=("calibri", 12)).grid(row=0, column=0)
         Label(self.frame[1], text='amount').grid(row=0, column=0)
         amount_entry = StringVar()
@@ -33,15 +44,17 @@ class AskForAmount():
                                                                                                         pady=5)
 
     def return_amount(self, amount_entry):
+        """
+                this function return the amount to the celling window
+                :return:
+        """
         self.parent.amount = amount_entry.get()
         self.root.destroy()
-        # if amount_entry.get() <= self.amount:
-        #     self.parent.amount = amount_entry.get()
-        #     self.root.destroy()
-        # else:
-        #     Label(self.frame[2], text='This amount is invalid please enter lower amount.', fg='red').grid(row=3, column=1)
-
 
     def cancel(self):
+        """
+        this function use for close the window
+        :return:
+        """
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             self.root.destroy()
